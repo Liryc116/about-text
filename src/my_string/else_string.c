@@ -58,25 +58,30 @@ char *my_strrchr(const char *s, int c)
 char *my_strtok(char *str, const char *delim)
 {
     static char *s = NULL;
-    char *ret = str;
 
     if(str!=NULL)
         s=str;
+    if(*s=='\0')
+        return NULL;
+    char *ret = s;
 
-    for(size_t i = 0; s[i]!='\0'; i++)
+    for(; *s!='\0'; s++)
     {
         for(size_t j = 0; delim[j]!='\0'; j++)
         {
-            if(s[i]==delim[j])
+            if(*s==delim[j])
             {
-                s[i]='\0';
-                if(ret[0]=='\0')
+                *s='\0';
+                if(ret==s)
                     ret++;
                 else
+                {
+                    s++;
                     return ret;
+                }
             }
         }
     }
 
-    return NULL;
+    return ret;
 }
