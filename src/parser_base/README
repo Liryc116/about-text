@@ -1,0 +1,10 @@
+Lexer Format:
+
+NUMBER : [1-9];
+word : +|-;
+
+attrib is " : " and eod is ";\n"
+attrib and eod are the complete substring marking the attribution 
+and the end of declaration of a name and a RegEx.
+Be careful of:  - not having eod in the RegEx
+                - buffer overflow if the regex is long, 
