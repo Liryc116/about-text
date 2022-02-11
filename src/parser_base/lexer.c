@@ -58,6 +58,8 @@ struct desc_vector *param_lexer(char *file_path, char *attrib, char *eod)
         to_treat += read(fd, buf+to_treat, BUFFER_SIZE-to_treat);
     }
 
+    close(fd);
+
     return rules;
 }
 

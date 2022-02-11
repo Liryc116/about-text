@@ -34,6 +34,8 @@ struct desc_vector *desc_vector_init(void);
 void desc_vector_append(struct desc_vector *v,
                                 char *name, char *ebnf, regex_t reg);
 
+void desc_vector_free(struct desc_vector *v);
+
 struct token *token_new(struct desc_vector *v, char *name, char *str);
 
 #endif /* ! TOKEN_H */

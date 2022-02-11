@@ -8,7 +8,7 @@ void desc_vector_double_capacity(struct desc_vector *v)
 {
     v->capacity*=2;
     v->data = reallocarray(v->data,
-            sizeof(struct token_description), v->capacity);
+            sizeof(struct token_description *), v->capacity);
     if(v->data==NULL)
         errx(1, "Not enough memory");
 }
@@ -22,6 +22,7 @@ struct token_description *token_desc_new(size_t n,
 
     desc->name = name;
     desc->kind = n;
+    desc->ebnf = NULL;
 
     if(ebnf!=NULL)
     {
@@ -51,9 +52,28 @@ struct desc_vector *desc_vector_init(void)
 
     vect->capacity = 2;
     vect->size = 0;
-    vect->data = malloc(2*sizeof(struct token_description));
+    vect->data = malloc(2*sizeof(struct token_description *));
 
     return vect;
+}
+
+void token_desc_free(struct token_description *t)
+{
+    free(t->name);
+    if(t->ebnf!=NULL)
+        free(t->ebnf);
+    else
+        regfree(&t->reg);
+
+    free(t);
+}
+
+void desc_vector_free(struct desc_vector *v)
+{
+    for(size_t i = 0; i<v->size; i++)
+        token_desc_free(v->data[i]);
+    free(v->data);
+    free(v);
 }
 
 struct token *token_new(struct desc_vector *v, char *name, char *str)
