@@ -20,8 +20,8 @@ struct token_description *token_desc_new(size_t n,
     if(desc==NULL)
         errx(1, "Not enough memory");
 
-    desc->name = name;
     desc->kind = n;
+    desc->name = name;
     desc->ebnf = NULL;
 
     if(ebnf!=NULL)
@@ -49,10 +49,21 @@ void desc_vector_append(struct desc_vector *v,
 struct desc_vector *desc_vector_init(void)
 {
     struct desc_vector *vect = malloc(sizeof(struct desc_vector));
+    if(vect==NULL)
+        errx(1, "Not enough memory");
 
     vect->capacity = 2;
     vect->size = 0;
     vect->data = malloc(2*sizeof(struct token_description *));
+    if(vect->data==NULL)
+        errx(1, "Not enough memory");
+
+    char *empt = malloc(11);
+    if(empt==NULL)
+        errx(1, "Not enough memory");
+    strcpy(empt, "undefinned");
+    regex_t reg;
+    desc_vector_append(vect, empt, NULL, reg);
 
     return vect;
 }
@@ -70,7 +81,9 @@ void token_desc_free(struct token_description *t)
 
 void desc_vector_free(struct desc_vector *v)
 {
-    for(size_t i = 0; i<v->size; i++)
+    free(v->data[0]->name);
+    free(v->data[0]);
+    for(size_t i = 1; i<v->size; i++)
         token_desc_free(v->data[i]);
     free(v->data);
     free(v);
