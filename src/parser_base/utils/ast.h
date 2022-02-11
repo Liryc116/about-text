@@ -2,7 +2,6 @@
 #define AST_H
 
 #include <stddef.h>
-#include "vector.h"
 #include "token.h"
 
 struct ast
