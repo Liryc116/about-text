@@ -38,12 +38,12 @@ struct htab* htab_new(void);
 // The table's capacity does not change.
 // The table's size is set to zero.
 // After this function, the hash table can still be used.
-void htab_clear(struct htab* ht);
+void htab_clear(struct htab* ht, void (*free_function)(void *));
 
 // Delete a hash table.
 // Free all the allocated memory.
 // After this function, the hash table can no longer be used.
-void htab_free(struct htab* ht);
+void htab_free(struct htab* ht, void (*free_function)(void *));
 
 #include "htab_manipulation.h"
 

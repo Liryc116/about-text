@@ -28,7 +28,18 @@ static void htab_double_capacity(struct htab *ht)
 {
     size_t old_cap = ht->capacity;
     ht->capacity *= 2;
-    ht->data = reallocarray(ht->data, ht->capacity, sizeof(struct htab));
+    ht->data = reallocarray(ht->data, ht->capacity, sizeof(struct pair));
+
+    for(size_t i = ht->capacity/2; i<ht->capacity; i++)
+    {
+        ht->data[i] = (struct pair)
+        {
+            .hkey = i,
+            .key = calloc(1, sizeof(char)),
+            .value = NULL,
+            .next = NULL
+        };
+    }
 
     for(size_t i = 0; i<old_cap; i++)
     {
@@ -54,10 +65,12 @@ struct pair *htab_get(struct htab *ht, char *key)
     uint32_t searched = hash(key);
 
     struct pair* tmp = ht->data[searched%ht->capacity].next;
-    while (tmp != NULL && tmp->hkey != searched && strcmp(key, tmp->key) != 0)
+    while (tmp != NULL &&
+            tmp->hkey != searched &&
+            strcmp(key, tmp->key) != 0)
         tmp = tmp->next;
 
-    return NULL;
+    return tmp;
 }
 
 
@@ -65,7 +78,6 @@ int htab_insert(struct htab *ht, char *key, void *value)
 {
     if(htab_get(ht, key)!=NULL)
         return 0;
-
 
     struct pair *i = malloc(sizeof(struct pair));
     i->key = key;
@@ -78,7 +90,7 @@ int htab_insert(struct htab *ht, char *key, void *value)
     if(i->next==NULL)
         ht->size+=1;
 
-    if((ht->size+1)*100/ht->capacity>75)
+    if(ht->size*100/ht->capacity>75)
         htab_double_capacity(ht);
 
     return ht->capacity;

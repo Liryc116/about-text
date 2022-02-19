@@ -1,0 +1,7 @@
+input:      list '\n'
+        |   list EOF
+        |   '\n'
+        |   EOF
+
+list:       and_or ((';'|'&') and_or)* [';'|'&']
+

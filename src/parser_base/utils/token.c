@@ -4,99 +4,77 @@
 #include <err.h>
 #include <string.h>
 
-void desc_vector_double_capacity(struct desc_vector *v)
+struct lex_token *lex_token_new(char *name, char *regex_str)
 {
-    v->capacity*=2;
-    v->data = reallocarray(v->data,
-            sizeof(struct token_description *), v->capacity);
-    if(v->data==NULL)
+    if(name==NULL || regex_str == NULL)
+        errx(1, "lex_token_new: one or more NULL args");
+
+    struct lex_token *t = malloc(sizeof(struct lex_token));
+    if(t==NULL)
         errx(1, "Not enough memory");
+
+    if(regcomp(&t->reg, regex_str, REG_EXTENDED)!=0)
+        errx(1, "Could not compile the regex %s", regex_str);
+    t->name = name;
+
+    return t;
 }
 
-struct token_description *token_desc_new(size_t n,
-        char *name, char *ebnf, regex_t reg)
+void lex_token_free(void *tok)
 {
-    struct token_description *desc = malloc(sizeof(struct token_description));
-    if(desc==NULL)
-        errx(1, "Not enough memory");
-
-    desc->kind = n;
-    desc->name = name;
-    desc->ebnf = NULL;
-
-    if(ebnf!=NULL)
-    {
-        desc->ebnf=calloc(strlen(ebnf)+1, sizeof(char));
-        strcpy(desc->ebnf, ebnf);
-    }
-    else
-        desc->reg = reg;
-
-    return desc;
-}
-
-void desc_vector_append(struct desc_vector *v,
-                                char *name, char *ebnf, regex_t reg)
-{
-    if(v->size==v->capacity)
-        desc_vector_double_capacity(v);
-
-    struct token_description *t = token_desc_new(v->size, name, ebnf, reg);
-    v->data[v->size] = t;
-    v->size+=1;
-}
-
-struct desc_vector *desc_vector_init(void)
-{
-    struct desc_vector *vect = malloc(sizeof(struct desc_vector));
-    if(vect==NULL)
-        errx(1, "Not enough memory");
-
-    vect->capacity = 2;
-    vect->size = 0;
-    vect->data = malloc(2*sizeof(struct token_description *));
-    if(vect->data==NULL)
-        errx(1, "Not enough memory");
-
-    char *empt = malloc(11);
-    if(empt==NULL)
-        errx(1, "Not enough memory");
-    strcpy(empt, "undefinned");
-    regex_t reg;
-    desc_vector_append(vect, empt, NULL, reg);
-
-    return vect;
-}
-
-void token_desc_free(struct token_description *t)
-{
+    struct lex_token *t = tok;
     free(t->name);
-    if(t->ebnf!=NULL)
-        free(t->ebnf);
-    else
-        regfree(&t->reg);
-
+    regfree(&t->reg);
     free(t);
 }
 
-void desc_vector_free(struct desc_vector *v)
+struct gram_token *gram_token_new(char *name)
 {
-    free(v->data[0]->name);
-    free(v->data[0]);
-    for(size_t i = 1; i<v->size; i++)
-        token_desc_free(v->data[i]);
-    free(v->data);
-    free(v);
+    struct gram_token *gt = malloc(sizeof(struct gram_token));
+    if(gt==NULL)
+        errx(1, "Not enough memory");
+
+    gt->name = name;
+    gt->poss = calloc(2, sizeof(char *));
+    gt->nposs = 0;
+    gt->capacity = 2;
+
+    return gt;
 }
 
-struct token *token_new(struct desc_vector *v, char *name, char *str)
+void gram_token_free(void *tok)
+{
+    struct gram_token *t = tok;
+    for(size_t i = 0; i<t->nposs; free(t->poss[i]), i++);
+    free(t->poss);
+    free(t);
+}
+
+static void gram_token_double_capacity(struct gram_token *gt)
+{
+    gt->capacity *=2;
+    gt->poss = reallocarray(gt->poss, gt->capacity, sizeof(char *));
+}
+
+void gram_token_add_poss(struct gram_token *token, char *poss)
+{
+    if(poss==NULL)
+        errx(1, "gram_token_add_poss: poss is NULL");
+    if(token->nposs==token->capacity)
+        gram_token_double_capacity(token);
+
+    size_t len = strlen(poss);
+    token->poss[token->nposs] = calloc(len+1, sizeof(char));
+    if(token->poss[token->nposs]==NULL)
+        errx(1, "Not enough memory");
+    token->poss[token->nposs]=strcpy(token->poss[token->nposs], poss);
+    token->nposs +=1;
+}
+
+struct token *token_new(char *name, char *str)
 {
     struct token *t = malloc(sizeof(struct token));
-    for(size_t i = 0; i<v->size; i++)
-    {
-        if(strcmp(name, v->data[i]->name)==0)
-            t->kind = i;
-    }
     t->str = str;
+    t->name = name;
     return t;
 }
