@@ -3,18 +3,20 @@
 #include <stdlib.h>
 #include <err.h>
 #include <string.h>
+#include <stdio.h>
+#include <unistd.h>
 
 struct lex_token *lex_token_new(char *name, char *regex_str)
 {
     if(name==NULL || regex_str == NULL)
         errx(1, "lex_token_new: one or more NULL args");
 
-    struct lex_token *t = malloc(sizeof(struct lex_token));
+    struct lex_token *t = calloc(1, sizeof(struct lex_token));
     if(t==NULL)
         errx(1, "Not enough memory");
 
     if(regcomp(&t->reg, regex_str, REG_EXTENDED)!=0)
-        errx(1, "Could not compile the regex %s", regex_str);
+        errx(1, "Could not compile the regex: %s", regex_str);
     t->name = name;
 
     return t;
@@ -34,7 +36,8 @@ struct gram_token *gram_token_new(char *name)
     if(gt==NULL)
         errx(1, "Not enough memory");
 
-    gt->name = name;
+    gt->name = calloc(strlen(name)+1, sizeof(char));
+    strcpy(gt->name, name);
     gt->poss = calloc(2, sizeof(char *));
     gt->nposs = 0;
     gt->capacity = 2;
@@ -47,6 +50,7 @@ void gram_token_free(void *tok)
     struct gram_token *t = tok;
     for(size_t i = 0; i<t->nposs; free(t->poss[i]), i++);
     free(t->poss);
+    free(t->name);
     free(t);
 }
 

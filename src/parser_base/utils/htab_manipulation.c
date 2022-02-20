@@ -80,7 +80,9 @@ int htab_insert(struct htab *ht, char *key, void *value)
         return 0;
 
     struct pair *i = malloc(sizeof(struct pair));
-    i->key = key;
+    size_t len = strlen(key);
+    i->key = calloc(len+1, sizeof(char));
+    strcpy(i->key, key);
     i->value = value;
     i->hkey = hash(key);
 

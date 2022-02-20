@@ -24,16 +24,16 @@ struct htab *param_lexer(char *file_path, char *attrib, char *eod)
 
     char buf[BUFFER_SIZE];
     size_t to_treat = read(fd, buf, BUFFER_SIZE);
-    while(to_treat != 0)
+    while(to_treat > a_len+eod_len)
     {
         char *end = strstr(buf, attrib);
         if(end==NULL)
             errx(1, "param_lexer: could not find the name");
 
         *end = '\0';
-        size_t len = strlen(buf)+1;
-        char *name = malloc(len);
-        strncpy(name, buf, len);
+        size_t len = strlen(buf);
+        char *name = malloc(len+1);
+        strncpy(name, buf, len+1);
 
         to_treat-= (len + a_len);
         memmove(buf, buf+len+a_len, to_treat);

@@ -8,7 +8,9 @@ char *strnstr(char *haystack, char *needle, size_t n)
     for(size_t i = 0; haystack[i]!='\0' && i<n; i++)
     {
         size_t k;
-        for(k = 0; needle[k]!='\0' && haystack[i]==needle[k]; i++, k++);
+        for(k = 0; needle[k]!='\0' &&
+                haystack[i+k]==needle[k] &&
+                haystack[i+k]!='\0'; k++);
 
         if(needle[k]=='\0')
             return (char *)(haystack+i);

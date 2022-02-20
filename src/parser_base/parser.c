@@ -17,6 +17,9 @@
 
 size_t shift_buffer(size_t len, size_t to_treat, int fd, char *buf)
 {
+    if(len>to_treat)
+        errx(1, "shift_buffer: len (%lu) is higher than to_treat (%lu)",
+                len, to_treat);
     to_treat -= (len);
     memmove(buf, buf+len, to_treat);
     to_treat += read(fd, buf+to_treat, BUFFER_SIZE-to_treat);
@@ -38,41 +41,39 @@ struct htab *param_parser(char *filepath, char *attrib, char *bod, char *eod)
 
     while(to_treat != 0)
     {
-        char *end = strnstr(buf, attrib, BUFFER_SIZE);
+        char *end = strnstr(buf, attrib, to_treat);
         if(end==NULL)
             errx(1, "param_parser: could not find the name");
 
         *end = '\0';
-        char *name = stracpy(buf);
-        size_t len = strlen(name);
+        size_t len = strlen(buf);
 
-        struct pair *p = htab_get(ht, name);
+        struct pair *p = htab_get(ht, buf);
         if(p==NULL)
         {
-            htab_insert(ht, name, gram_token_new(name));
-            p = htab_get(ht, name);
+            htab_insert(ht, buf, gram_token_new(buf));
+            p = htab_get(ht, buf);
         }
 
         to_treat = shift_buffer(len+a_len, to_treat, fd, buf);
 
-        for(int found_eod = 0; !found_eod; )
+        for(int found_eod = 0; !found_eod && to_treat!=0; )
         {
-            char *nbod = strnstr(buf, bod, BUFFER_SIZE);
-            end = strnstr(buf, eod, BUFFER_SIZE);
+            char *nbod = strnstr(buf, bod, to_treat);
+            end = strnstr(buf, eod, to_treat);
             if(end!=NULL && end<=nbod)
-            {
                 found_eod = 1;
-                *end = '\0';
-                len = strlen(buf);
-            }
             else if(nbod<end && nbod!=NULL)
-            {
                 end = nbod;
-                *end = '\0';
-                len = strlen(buf) + bod_len - eod_len;
-            }
             else
                 errx(1, "Could not find neither %s or %s", bod, eod);
+
+            *end = '\0';
+            len = strlen(buf);
+
+            if(!found_eod)
+                len += bod_len - eod_len;
+
             gram_token_add_poss(p->value, buf);
             to_treat = shift_buffer(len+eod_len, to_treat, fd, buf);
         }

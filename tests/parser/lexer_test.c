@@ -2,11 +2,12 @@
 #include <stdio.h>
 #include <criterion/criterion.h>
 #include <regex.h>
+#include <unistd.h>
 #include "../../src/parser_base/lexer.h"
 #include "../../src/parser_base/utils/token.h"
 #include "../../src/parser_base/utils/htab.h"
 
-Test(setup, runs)
+Test(param_lexer, runs)
 {
     struct htab *ht = param_lexer("src/parser_base/lexer_rules",
             " := ", ";\n");
@@ -15,7 +16,7 @@ Test(setup, runs)
     htab_free(ht, &lex_token_free);
 }
 
-Test(setup, correct)
+Test(param_lexer, correct)
 {
     struct htab *ht = param_lexer("src/parser_base/lexer_rules",
             " := ", ";\n");
@@ -28,7 +29,7 @@ Test(setup, correct)
     htab_free(ht, &lex_token_free);
 }
 
-Test(setup, recognize)
+Test(param_lexer, recognize)
 {
     struct htab *ht = param_lexer("src/parser_base/lexer_rules",
             " := ", ";\n");
@@ -36,22 +37,23 @@ Test(setup, recognize)
     char *str = " 42? or what 30";
     regmatch_t match[1];
     regoff_t len;
-    regex_t reg = ((struct lex_token *) htab_get(ht, "Non-nul-digits")->value)->reg;
-    int get_err = regexec(&reg, str, 1, match, 0);
+    struct lex_token *lt = htab_get(ht, "Non-nul-digits")->value;
+    regex_t *reg = &lt->reg;
+    int get_err = regexec(reg, str, 1, match, 0);
 
     len = match[0].rm_eo - match[0].rm_so;
     cr_assert(get_err==0);
     cr_assert(strncmp("42", str+match[0].rm_so, len)==0);
 
     str+= match[0].rm_eo;
-    get_err = regexec(&reg, str, 1, match, 0);
+    get_err = regexec(reg, str, 1, match, 0);
     len = match[0].rm_eo - match[0].rm_so;
 
     cr_assert(get_err==0);
     cr_assert(strncmp("2", str+match[0].rm_so, len)==0);
 
     str+= match[0].rm_eo;
-    get_err = regexec(&reg, str, 1, match, 0);
+    get_err = regexec(reg, str, 1, match, 0);
     len = match[0].rm_eo - match[0].rm_so;
 
     cr_assert(get_err==0);

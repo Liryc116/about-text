@@ -31,12 +31,12 @@ struct htab* htab_new(void)
 
 void htab_clear(struct htab* ht, void (*free_function)(void *))
 {
-	for (size_t i=0; i< ht->size;i++)
+	for (size_t i=0; i< ht->capacity;i++)
     {
         struct pair *p = ht->data[i].next;
         struct pair *tmp;
         for(; p!=NULL; tmp = p->next,
-                free_function(p->value), free(p), p=tmp);
+                free_function(p->value), free(p->key), free(p), p=tmp);
     }
 
 	ht->size = 0;
@@ -45,6 +45,8 @@ void htab_clear(struct htab* ht, void (*free_function)(void *))
 void htab_free(struct htab* ht, void (*free_function)(void *))
 {
 	htab_clear(ht, free_function);
+    for(size_t i = 0; i<ht->capacity; i++)
+        free(ht->data[i].key);
     free(ht->data);
 	free(ht);
 }
