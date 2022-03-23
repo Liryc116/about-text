@@ -1,4 +1,0 @@
-Non-nul-digits := [1-9];
-all_digits := 0|[1-9];
-operators := [+-];
-
