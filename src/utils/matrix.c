@@ -9,16 +9,13 @@ struct matrix* matrix_new(size_t width, size_t height)
 {
     struct matrix *matrix = xmalloc(sizeof(struct matrix));
 
-    if(matrix==NULL)
-        errx(1, "matrix_new: Not enough memory");
-
     matrix->width = width;
     matrix->height = height;
     matrix->data_size = sizeof(int);
-    matrix->data = xcalloc(width*height, sizeof(double));
+    matrix->data = xmalloc(width*height * sizeof(double));
 
-    if(matrix->data==NULL)
-        errx(1, "matrix_new: Not enough memory");
+    for(size_t i = 0; i < width*height; i++)
+        matrix->data[i] = 0;
 
     return matrix;
 }
@@ -28,7 +25,7 @@ double matrix_col_sum(struct matrix *m, size_t n)
     if(n>=m->width)
         return 0;
 
-    long res = 0;
+    double res = 0;
     for(size_t i = 0; i<m->height; res+=m->data[i*m->width+n], i++);
 
     return res;
@@ -39,7 +36,7 @@ double matrix_row_sum(struct matrix *m, size_t n)
     if(n>=m->height)
         return 0;
 
-    long res = 0;
+    double res = 0;
     for(size_t i = 0; i<m->width; res+=m->data[n*m->width+i], i++);
 
     return res;
@@ -91,4 +88,10 @@ void matrix_sum(struct matrix *m1, struct matrix *m2)
             m1->data[i*m1->width+j]+=m2->data[i*m1->width+j];
         }
     }
+}
+
+void matrix_free(struct matrix *m)
+{
+    free(m->data);
+    free(m);
 }

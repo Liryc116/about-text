@@ -47,4 +47,6 @@ struct matrix *matrix_mult(struct matrix *m1, struct matrix *m2);
 */
 void matrix_sum(struct matrix *m1, struct matrix *m2);
 
+void matrix_free(struct matrix *m);
+
 #endif /* ! MATRIX_H */

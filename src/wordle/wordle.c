@@ -51,14 +51,18 @@ int *evaluate_answer(char *expected, char *received)
 
     for(size_t i = 0; i<len; i++)
     {
+        if(!used[i] && received[i]==expected[i])
+        {
+            used[i] = 1;
+            result[i] = GREEN;
+        }
+
         for(size_t k = 0; k<len; k++)
         {
             if(!used[k] && received[i]==expected[k])
             {
-                used[k]=1;
+                used[k] = 1;
                 result[i] = YELLOW;
-                if(k==i)
-                    result[i]= GREEN;
             }
         }
     }

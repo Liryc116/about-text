@@ -1,3 +1,4 @@
+#include "sequence.h"
 
 #include "../utils/matrix.h"
 
@@ -39,6 +40,22 @@ void to_probability(struct matrix *m)
 
         for(size_t k = 0; k<m->width; k++)
             m->data[k+i*m->width]/=sum;
+    }
+}
+
+void print_sequence(struct matrix *m)
+{
+    printf("    ");
+    for(char i = 0; i<26; i++)
+        printf(" %c ", i+'a');
+    printf("*\n");
+
+    for(char i = 0; i<27; i++)
+    {
+        printf("%c | ", i+'a');
+        for(size_t k = 0; k<27; k++)
+            printf("%2.0f ", 100*m->data[k+i*m->width]);
+        printf("\n");
     }
 }
 

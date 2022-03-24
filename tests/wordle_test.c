@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <criterion/criterion.h>
+
 #include "../src/wordle/wordle.h"
 
 Test(evaluate, a_a)
