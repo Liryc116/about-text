@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <criterion/criterion.h>
 
 #include "../src/word_generator/sequence.h"
@@ -7,11 +8,15 @@
 Test(get_seq, print)
 {
     struct matrix *m = get_sequence("lexicons/listefr.txt");
-    to_probability(m);
 
     for(size_t i = 0; i<27; i++)
-        cr_assert(matrix_row_sum(m, i)-1.0<0.0001);
-    //takes approximation in count
+    {
+        double sum = matrix_row_sum(m,i);
+
+        //takes approximation in count
+        cr_assert(sum>=0.9999);
+        cr_assert(sum<=1.0001);
+    }
 
     matrix_free(m);
 }

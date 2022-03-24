@@ -15,7 +15,7 @@ struct matrix* matrix_new(size_t width, size_t height)
     matrix->data = xmalloc(width*height * sizeof(double));
 
     for(size_t i = 0; i < width*height; i++)
-        matrix->data[i] = 0;
+        matrix->data[i] = 0.0;
 
     return matrix;
 }
