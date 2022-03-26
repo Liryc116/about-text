@@ -51,11 +51,15 @@ int *evaluate_answer(char *expected, char *received)
 
     for(size_t i = 0; i<len; i++)
     {
-        if(!used[i] && received[i]==expected[i])
+        if(received[i]==expected[i])
         {
             used[i] = 1;
             result[i] = GREEN;
         }
+    }
+
+    for(size_t i = 0; i<len; i++)
+    {
 
         for(size_t k = 0; k<len; k++)
         {
@@ -86,10 +90,8 @@ struct vector *init_word_list(char* path, size_t size)
 
     struct vector *res = vector_new();
 
-    while(!feof(fp))
+    while(fgets(buff, BUFFER_SIZE, fp))
     {
-        fgets(buff, BUFFER_SIZE, fp);
-
         if(buff[size]=='\n')
         {
             buff[size] = '\0';
