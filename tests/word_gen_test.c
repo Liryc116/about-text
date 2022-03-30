@@ -15,7 +15,7 @@ Test(word_exact_gen, gen_5_5)
     for(size_t i = 0; i<5; i++)
     {
         char *word = gen_exact_word(m, 5);
-        printf("%s\n", word);
+        //printf("%s\n", word);
         free(word);
     }
 
@@ -30,7 +30,7 @@ Test(word_exact_gen, gen_5_7)
     for(size_t i = 0; i<5; i++)
     {
         char *word = gen_exact_word(m, 7);
-        printf("%s\n", word);
+        //printf("%s\n", word);
         free(word);
     }
 
@@ -45,7 +45,7 @@ Test(word_gen, gen_5_5)
     for(size_t i = 0; i<5; i++)
     {
         char *word = gen_word(m, 5);
-        printf("%s\n", word);
+        //printf("%s\n", word);
         free(word);
     }
 
